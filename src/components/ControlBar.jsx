@@ -59,7 +59,7 @@ const ControlBar = ({
 
                 <button
                     onClick={onToggleListening}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all shadow-lg ${isListening
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all shadow-lg ${isListening
                         ? 'bg-red-500 hover:bg-red-600 animate-pulse-slow'
                         : 'btn-primary'
                         }`}

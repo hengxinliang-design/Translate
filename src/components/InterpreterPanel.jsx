@@ -20,10 +20,10 @@ const InterpreterPanel = ({ title, segments = [], isInterim, language }) => {
 
             <div
                 ref={scrollRef}
-                className="flex-1 p-6 overflow-y-auto space-y-4 font-medium text-lg leading-relaxed"
+                className="flex-1 p-6 overflow-y-auto space-y-6 font-medium text-2xl leading-relaxed"
             >
                 {segments.length > 0 || isInterim ? (
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         {segments.map((segment) => {
                             const isUser1 = segment.speaker === 'User 1';
                             return (
@@ -31,13 +31,14 @@ const InterpreterPanel = ({ title, segments = [], isInterim, language }) => {
                                     key={segment.id}
                                     className={`flex flex-col ${isUser1 ? 'items-start' : 'items-end'}`}
                                 >
-                                    <span className="text-xs text-text-secondary mb-1 px-1">
+                                    <span className={`text-sm font-bold mb-1 px-2 py-0.5 rounded-full ${isUser1 ? 'bg-blue-500/20 text-blue-300' : 'bg-green-500/20 text-green-300'
+                                        }`}>
                                         {segment.speaker || 'User 1'}
                                     </span>
                                     <div
-                                        className={`p-3 rounded-lg max-w-[85%] ${isUser1
-                                            ? 'bg-blue-500/10 text-blue-200 border border-blue-500/20 rounded-tl-none'
-                                            : 'bg-green-500/10 text-green-200 border border-green-500/20 rounded-tr-none'
+                                        className={`p-4 rounded-xl max-w-[85%] ${isUser1
+                                            ? 'bg-blue-500/10 text-blue-100 border border-blue-500/20 rounded-tl-none'
+                                            : 'bg-green-500/10 text-green-100 border border-green-500/20 rounded-tr-none'
                                             }`}
                                     >
                                         {segment.text}
