@@ -84,3 +84,23 @@ export const refineTranslation = (translatedText, targetLang, sourceText = '') =
 
     return refinedText;
 };
+
+/**
+ * Performs a fallback translation by replacing known industry terms.
+ * Useful when the translation API is down or rate-limited.
+ * 
+ * @param {string} text The source text (English).
+ * @param {string} targetLang The target language code.
+ * @returns {string} The text with industry terms translated.
+ */
+export const fallbackTranslate = (text, targetLang) => {
+    const glossary = INDUSTRY_GLOSSARY[targetLang];
+    if (!glossary) return text;
+
+    let translated = text;
+    glossary.forEach(item => {
+        translated = translated.replace(item.pattern, item.replacement);
+    });
+
+    return translated;
+};

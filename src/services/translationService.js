@@ -1,4 +1,4 @@
-import { refineTranslation } from './glossary';
+import { refineTranslation, fallbackTranslate } from './glossary';
 
 /**
  * Mock Translation Service
@@ -27,8 +27,9 @@ export const translateText = async (text, sourceLang, targetLang) => {
         }
     } catch (error) {
         console.warn('Translation API failed, falling back to mock:', error);
-        // Fallback for demo if API limit reached
-        return `[${targetLang}] ${text}`;
+        // Fallback for demo if API limit reached: Use glossary to translate keywords
+        const fallbackText = fallbackTranslate(text, targetLang);
+        return `[Offline] ${fallbackText}`;
     }
 };
 
