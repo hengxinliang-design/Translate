@@ -1,4 +1,4 @@
-import { refineTranslation, fallbackTranslate } from './glossary';
+import { refineTranslation, fallbackTranslate } from './glossary.js';
 
 /**
  * Mock Translation Service
@@ -14,16 +14,18 @@ export const translateText = async (text, sourceLang, targetLang) => {
         const target = targetLang.split('-')[0];
 
         const response = await fetch(
-            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${source}|${target}`
+            `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${source}&tl=${target}&dt=t&q=${encodeURIComponent(text)}`
         );
 
         const data = await response.json();
 
-        if (data.responseStatus === 200 && data.responseData.translatedText) {
-            const refinedText = refineTranslation(data.responseData.translatedText, targetLang, text);
+        if (data && data[0] && data[0][0] && data[0][0][0]) {
+            // Combine all segments if multiple sentences
+            const translatedText = data[0].map(seg => seg[0]).join('');
+            const refinedText = refineTranslation(translatedText, targetLang, text);
             return refinedText;
         } else {
-            throw new Error(data.responseDetails || 'Translation failed');
+            throw new Error('Translation failed');
         }
     } catch (error) {
         console.warn('Translation API failed, falling back to mock:', error);
