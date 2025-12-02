@@ -84,7 +84,7 @@ function App() {
   const getLangName = (code) => LANGUAGES.find(l => l.code === code)?.name || code;
 
   return (
-    <div className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto flex flex-col">
+    <div className="h-screen p-4 md:p-8 max-w-7xl mx-auto flex flex-col overflow-hidden">
       <header className="mb-8 text-center">
         <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-accent-primary to-accent-secondary mb-2">
           LinguaFlow
@@ -108,7 +108,7 @@ function App() {
         </div>
       )}
 
-      <div className="flex-1 flex flex-col md:flex-row gap-6 min-h-[500px]">
+      <div className="flex-1 flex flex-col md:flex-row gap-6 min-h-0">
         <InterpreterPanel
           title="Source"
           segments={transcript}

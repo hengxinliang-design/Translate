@@ -10,7 +10,7 @@ const InterpreterPanel = ({ title, segments = [], isInterim, language }) => {
     }, [segments, isInterim]);
 
     return (
-        <div className="glass-panel flex-1 flex flex-col h-[500px] overflow-hidden transition-all hover:border-accent-primary/30">
+        <div className="glass-panel flex-1 flex flex-col overflow-hidden transition-all hover:border-accent-primary/30 min-h-0">
             <div className="p-4 border-b border-glass-border bg-bg-secondary/50 flex justify-between items-center">
                 <h2 className="font-bold text-lg text-accent-primary">{title}</h2>
                 <span className="text-xs text-text-secondary bg-bg-primary px-2 py-1 rounded">
@@ -36,8 +36,8 @@ const InterpreterPanel = ({ title, segments = [], isInterim, language }) => {
                                     </span>
                                     <div
                                         className={`p-3 rounded-lg max-w-[85%] ${isUser1
-                                                ? 'bg-blue-500/10 text-blue-200 border border-blue-500/20 rounded-tl-none'
-                                                : 'bg-green-500/10 text-green-200 border border-green-500/20 rounded-tr-none'
+                                            ? 'bg-blue-500/10 text-blue-200 border border-blue-500/20 rounded-tl-none'
+                                            : 'bg-green-500/10 text-green-200 border border-green-500/20 rounded-tr-none'
                                             }`}
                                     >
                                         {segment.text}

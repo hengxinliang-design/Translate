@@ -1,3 +1,5 @@
+import { refineTranslation } from './glossary';
+
 /**
  * Mock Translation Service
  * 
@@ -18,7 +20,8 @@ export const translateText = async (text, sourceLang, targetLang) => {
         const data = await response.json();
 
         if (data.responseStatus === 200 && data.responseData.translatedText) {
-            return data.responseData.translatedText;
+            const refinedText = refineTranslation(data.responseData.translatedText, targetLang, text);
+            return refinedText;
         } else {
             throw new Error(data.responseDetails || 'Translation failed');
         }
