@@ -87,7 +87,7 @@ function App() {
     <div className="h-screen p-4 md:p-8 max-w-7xl mx-auto flex flex-col overflow-hidden">
       <header className="mb-8 text-center">
         <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-accent-primary to-accent-secondary mb-2">
-          LinguaFlow
+          Johnny Flow
         </h1>
         <p className="text-text-secondary">Real-time AI Simultaneous Interpretation</p>
       </header>
@@ -102,11 +102,13 @@ function App() {
         setTargetLang={setTargetLang}
       />
 
-      {recognitionError && (
-        <div className="mb-4 p-4 bg-red-500/20 border border-red-500/50 text-red-200 rounded-lg">
-          {recognitionError}
-        </div>
-      )}
+      {
+        recognitionError && (
+          <div className="mb-4 p-4 bg-red-500/20 border border-red-500/50 text-red-200 rounded-lg">
+            {recognitionError}
+          </div>
+        )
+      }
 
       <div className="flex-1 flex flex-col md:flex-row gap-6 min-h-0">
         <InterpreterPanel
@@ -130,7 +132,7 @@ function App() {
       <div className="mt-8 flex justify-center">
         <AudioVisualizer isListening={isListening} />
       </div>
-    </div>
+    </div >
   );
 }
 
