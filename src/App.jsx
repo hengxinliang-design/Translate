@@ -95,7 +95,7 @@ function App() {
       <header className="relative z-10 flex justify-between items-center px-8 py-6">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-          <span className="text-lg font-bold tracking-wider opacity-90">LinguaFlow</span>
+          <span className="text-lg font-bold tracking-wider opacity-90">Johnny AI</span>
         </div>
         <button className="text-gray-400 hover:text-white transition-colors">
           <i className="ri-settings-4-line text-xl"></i>

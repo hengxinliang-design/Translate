@@ -44,7 +44,7 @@ describe('App Integration', () => {
 
     it('renders the main layout elements', () => {
         render(<App />);
-        expect(screen.getByText('LinguaFlow')).toBeInTheDocument();
+        expect(screen.getByText('Johnny AI')).toBeInTheDocument();
         expect(screen.getByText('Start speaking to see the transcript...')).toBeInTheDocument();
     });
 
