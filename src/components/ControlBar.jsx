@@ -1,80 +1,76 @@
 import React from 'react';
-import { Mic, MicOff, Settings, Trash2 } from 'lucide-react';
 import { LANGUAGES } from '../services/translationService';
 
 const ControlBar = ({
     isListening,
     onToggleListening,
-    onClearHistory,
     sourceLang,
     targetLang,
     setSourceLang,
     setTargetLang
 }) => {
+    const getLangName = (code) => LANGUAGES.find(l => l.code === code)?.name || code;
+
     return (
-        <div className="glass-panel p-4 flex flex-wrap items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-4 flex-1">
-                <div className="flex flex-col gap-1">
-                    <label className="text-xs text-text-secondary uppercase font-bold tracking-wider">Source</label>
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50">
+            <div className="glass rounded-full px-6 py-3 flex items-center gap-6 shadow-2xl transition-all hover:scale-105 duration-300">
+
+                <div className="flex items-center gap-3 text-sm font-medium text-gray-300 cursor-pointer hover:text-white transition group relative">
                     <select
                         value={sourceLang}
                         onChange={(e) => setSourceLang(e.target.value)}
-                        className="bg-bg-secondary text-text-primary border border-glass-border rounded px-3 py-2 focus:outline-none focus:border-accent-primary transition-colors"
-                        disabled={isListening}
+                        className="appearance-none bg-transparent border-none outline-none cursor-pointer text-right pr-1"
                     >
                         {LANGUAGES.map(lang => (
-                            <option key={lang.code} value={lang.code}>
-                                {lang.flag} {lang.name}
+                            <option key={lang.code} value={lang.code} className="text-black">
+                                {lang.name}
                             </option>
                         ))}
                     </select>
-                </div>
-
-                <div className="text-text-secondary">→</div>
-
-                <div className="flex flex-col gap-1">
-                    <label className="text-xs text-text-secondary uppercase font-bold tracking-wider">Target</label>
+                    <i className="ri-arrow-left-right-line text-cyan-400"></i>
                     <select
                         value={targetLang}
                         onChange={(e) => setTargetLang(e.target.value)}
-                        className="bg-bg-secondary text-text-primary border border-glass-border rounded px-3 py-2 focus:outline-none focus:border-accent-primary transition-colors"
+                        className="appearance-none bg-transparent border-none outline-none cursor-pointer pl-1"
                     >
                         {LANGUAGES.map(lang => (
-                            <option key={lang.code} value={lang.code}>
-                                {lang.flag} {lang.name}
+                            <option key={lang.code} value={lang.code} className="text-black">
+                                {lang.name}
                             </option>
                         ))}
                     </select>
                 </div>
-            </div>
 
-            <div className="flex items-center gap-4">
-                <button
-                    onClick={onClearHistory}
-                    className="p-3 rounded-full bg-bg-secondary text-text-secondary hover:text-red-400 hover:bg-red-500/10 transition-all"
-                    title="Clear History"
-                >
-                    <Trash2 size={20} />
-                </button>
+                <div className="w-px h-6 bg-gray-700"></div>
 
                 <button
+                    data-testid="mic-btn"
                     onClick={onToggleListening}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all shadow-lg ${isListening
-                        ? 'bg-red-500 hover:bg-red-600 animate-pulse-slow'
-                        : 'btn-primary'
+                    className={`relative group flex items-center justify-center w-12 h-12 rounded-full transition-all shadow-lg ${isListening
+                        ? 'bg-red-500 hover:bg-red-600 shadow-red-500/30'
+                        : 'bg-gray-700 hover:bg-gray-600'
                         }`}
                 >
-                    {isListening ? (
-                        <>
-                            <MicOff size={20} />
-                            Stop
-                        </>
-                    ) : (
-                        <>
-                            <Mic size={20} />
-                            Start Listening
-                        </>
-                    )}
+                    <i className={`text-xl text-white ${isListening ? 'ri-mic-fill' : 'ri-mic-off-fill'}`}></i>
+                </button>
+
+                <div className="flex items-end gap-1 h-6">
+                    {[0, 0.1, 0.2, 0.3, 0.4].map((delay, i) => (
+                        <div
+                            key={i}
+                            className={`w-1 rounded-full ${isListening ? 'animate-wave' : 'h-1'}`}
+                            style={{
+                                animationDelay: `${delay}s`,
+                                backgroundColor: ['#22d3ee', '#06b6d4', '#c084fc', '#60a5fa', '#22d3ee'][i]
+                            }}
+                        ></div>
+                    ))}
+                </div>
+
+                <div className="w-px h-6 bg-gray-700"></div>
+
+                <button className="text-gray-400 hover:text-white transition-colors" title="全屏模式">
+                    <i className="ri-fullscreen-line text-lg"></i>
                 </button>
             </div>
         </div>

@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import ControlBar from './components/ControlBar';
-import InterpreterPanel from './components/InterpreterPanel';
-import AudioVisualizer from './components/AudioVisualizer';
+import TranscriptList from './components/TranscriptList';
 import useSpeechRecognition from './hooks/useSpeechRecognition';
 import useSpeechSynthesis from './hooks/useSpeechSynthesis';
-import { translateText, LANGUAGES } from './services/translationService';
+import { translateText } from './services/translationService';
 
 function App() {
   const [sourceLang, setSourceLang] = useState('en-US');
@@ -74,65 +73,55 @@ function App() {
     }
   };
 
-  const handleClearHistory = () => {
-    clearTranscript();
-    setTranslatedSegments([]);
-    setProcessedSegmentIds(new Set());
-    cancelSpeech();
-  };
-
-  const getLangName = (code) => LANGUAGES.find(l => l.code === code)?.name || code;
+  // Prepare display transcript (include interim)
+  const displayTranscript = [...transcript];
+  if (interimTranscript) {
+    displayTranscript.push({
+      id: 'interim',
+      text: interimTranscript,
+      timestamp: Date.now(),
+      speaker: 'User'
+    });
+  }
 
   return (
-    <div className="h-screen p-4 md:p-8 max-w-7xl mx-auto flex flex-col overflow-hidden">
-      <header className="mb-8 text-center">
-        <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-accent-primary to-accent-secondary mb-2">
-          Johnny Flow
-        </h1>
-        <p className="text-text-secondary">Real-time AI Simultaneous Interpretation</p>
+    <>
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob"></div>
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-cyan-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-blue-600 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+      </div>
+
+      <header className="relative z-10 flex justify-between items-center px-8 py-6">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+          <span className="text-lg font-bold tracking-wider opacity-90">LinguaFlow</span>
+        </div>
+        <button className="text-gray-400 hover:text-white transition-colors">
+          <i className="ri-settings-4-line text-xl"></i>
+        </button>
       </header>
+
+      {recognitionError && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-red-500/20 text-red-300 px-4 py-2 rounded-lg border border-red-500/50">
+          {recognitionError}
+        </div>
+      )}
+
+      <TranscriptList
+        transcript={displayTranscript}
+        translatedSegments={translatedSegments}
+      />
 
       <ControlBar
         isListening={isListening}
         onToggleListening={handleToggleListening}
-        onClearHistory={handleClearHistory}
         sourceLang={sourceLang}
         targetLang={targetLang}
         setSourceLang={setSourceLang}
         setTargetLang={setTargetLang}
       />
-
-      {
-        recognitionError && (
-          <div className="mb-4 p-4 bg-red-500/20 border border-red-500/50 text-red-200 rounded-lg">
-            {recognitionError}
-          </div>
-        )
-      }
-
-      <div className="flex-1 flex flex-col md:flex-row gap-6 min-h-0">
-        <InterpreterPanel
-          title="Source"
-          segments={transcript}
-          isInterim={interimTranscript}
-          language={getLangName(sourceLang)}
-        />
-
-        <div className="hidden md:flex flex-col items-center justify-center gap-4 text-text-secondary opacity-50">
-          <div className="w-px h-full bg-glass-border"></div>
-        </div>
-
-        <InterpreterPanel
-          title="Translation"
-          segments={translatedSegments}
-          language={getLangName(targetLang)}
-        />
-      </div>
-
-      <div className="mt-8 flex justify-center">
-        <AudioVisualizer isListening={isListening} />
-      </div>
-    </div >
+    </>
   );
 }
 
