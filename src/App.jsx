@@ -65,6 +65,8 @@ function App() {
     localStorage.setItem('speakers', JSON.stringify(newSpeakers));
   };
 
+  const activeSpeaker = speakers.find(s => s.id === activeSpeakerId);
+
   const {
     isListening,
     transcript,
@@ -77,7 +79,6 @@ function App() {
 
   const { speak, cancel: cancelSpeech } = useSpeechSynthesis();
 
-  const activeSpeaker = speakers.find(s => s.id === activeSpeakerId);
   const { translatedSegments, clearTranslations } = useTranslation(sourceLang, targetLang, transcript, speak, settings, activeSpeaker);
 
   const handleToggleListening = () => {

@@ -6,6 +6,8 @@ const useSpeechSynthesis = () => {
     const synth = useRef(window.speechSynthesis);
 
     useEffect(() => {
+        if (!synth.current) return;
+
         const updateVoices = () => {
             setVoices(synth.current.getVoices());
         };
@@ -17,7 +19,7 @@ const useSpeechSynthesis = () => {
     }, []);
 
     const speak = useCallback((text, lang = 'en-US') => {
-        if (!text) return;
+        if (!text || !synth.current) return;
 
         // Cancel any current speech
         synth.current.cancel();
@@ -42,7 +44,9 @@ const useSpeechSynthesis = () => {
     }, [voices]);
 
     const cancel = useCallback(() => {
-        synth.current.cancel();
+        if (synth.current) {
+            synth.current.cancel();
+        }
         setIsSpeaking(false);
     }, []);
 

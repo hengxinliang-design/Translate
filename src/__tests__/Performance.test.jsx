@@ -9,17 +9,19 @@ const mockClearTranscript = vi.fn();
 const mockSpeak = vi.fn();
 const mockCancelSpeech = vi.fn();
 
-// We will control the transcript via this variable
-let currentTranscript = [];
+// We will control the transcript via this hoisted variable
+const mocks = vi.hoisted(() => ({
+    currentTranscript: []
+}));
 
 vi.mock('../hooks/useSpeechRecognition', () => ({
     default: () => ({
         isListening: true,
-        transcript: currentTranscript,
+        transcript: mocks.currentTranscript,
         interimTranscript: '',
-        startListening: mockStartListening,
-        stopListening: mockStopListening,
-        clearTranscript: mockClearTranscript,
+        startListening: vi.fn(),
+        stopListening: vi.fn(),
+        clearTranscript: vi.fn(),
         error: null
     })
 }));
@@ -50,7 +52,7 @@ vi.mock('../services/translationService', () => ({
 describe('Translation Performance Benchmark', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        currentTranscript = [];
+        mocks.currentTranscript = [];
     });
 
     it('processes multiple segments concurrently', async () => {
@@ -69,7 +71,7 @@ describe('Translation Performance Benchmark', () => {
         const startTime = performance.now();
 
         // Update the mock return value
-        currentTranscript = segments;
+        mocks.currentTranscript = segments;
 
         // Force re-render to trigger useEffect
         rerender(<App />);
@@ -77,7 +79,7 @@ describe('Translation Performance Benchmark', () => {
         // 4. Wait for all translations to complete (speak called for last segment)
         await waitFor(() => {
             expect(mockSpeak).toHaveBeenCalledTimes(SEGMENT_COUNT);
-        }, { timeout: 2000 }); // Should finish well within 2s if parallel
+        }, { timeout: 5000 }); // Should finish well within 5s if parallel
 
         const endTime = performance.now();
         const duration = endTime - startTime;

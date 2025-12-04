@@ -22,7 +22,7 @@ const useTranslation = (sourceLang, targetLang, transcript, speak, settings, act
         await Promise.all(newSegments.map(async (segment) => {
           try {
             // Construct context from previous segments
-            const context = prev.slice(-3).map(s => `${s.speaker}: ${s.text}`).join('\n');
+            const context = translatedSegments.slice(-3).map(s => `${s.speaker}: ${s.text}`).join('\n');
 
             const translatedText = await translateText(segment.text, sourceLang, targetLang, {
               ...settings,
