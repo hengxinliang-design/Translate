@@ -38,22 +38,28 @@ function App() {
           return next;
         });
 
-        for (const segment of newSegments) {
+        // Process translations in parallel
+        await Promise.all(newSegments.map(async (segment) => {
           try {
             const translatedText = await translateText(segment.text, sourceLang, targetLang);
 
-            setTranslatedSegments(prev => [...prev, {
-              id: segment.id,
-              text: translatedText,
-              timestamp: segment.timestamp,
-              speaker: segment.speaker
-            }]);
+            setTranslatedSegments(prev => {
+              // Avoid duplicates if already added by another race (though Set check above helps)
+              if (prev.some(t => t.id === segment.id)) return prev;
+
+              return [...prev, {
+                id: segment.id,
+                text: translatedText,
+                timestamp: segment.timestamp,
+                speaker: segment.speaker
+              }];
+            });
 
             speak(translatedText, targetLang);
           } catch (error) {
             console.error('Translation failed:', error);
           }
-        }
+        }));
       }
     };
 

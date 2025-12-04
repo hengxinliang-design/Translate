@@ -20,7 +20,7 @@ const TranscriptList = ({ transcript, translatedSegments }) => {
     }, [mergedItems.length, translatedSegments]);
 
     return (
-        <main className="relative z-10 h-[calc(100vh-140px)] flex flex-col items-center justify-end pb-32 px-4 md:px-20 max-w-5xl mx-auto">
+        <main className="relative z-10 h-[calc(100dvh-140px)] flex flex-col items-center justify-end pb-32 px-4 md:px-20 max-w-5xl mx-auto">
             <div
                 ref={scrollRef}
                 className="w-full flex flex-col gap-8 overflow-y-auto no-scrollbar mask-image-linear-gradient"

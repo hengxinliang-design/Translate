@@ -79,5 +79,5 @@
 }
 
 body {
-  @apply bg-gray-900 text-white font-sans h-screen overflow-hidden relative selection:bg-cyan-500 selection:text-white;
+  @apply bg-gray-900 text-white font-sans h-[100dvh] overflow-hidden relative selection:bg-cyan-500 selection:text-white;
 }

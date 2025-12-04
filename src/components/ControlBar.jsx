@@ -12,7 +12,7 @@ const ControlBar = ({
     const getLangName = (code) => LANGUAGES.find(l => l.code === code)?.name || code;
 
     return (
-        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50">
+        <div className="fixed bottom-[calc(2.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-50">
             <div className="glass rounded-full px-6 py-3 flex items-center gap-6 shadow-2xl transition-all hover:scale-105 duration-300">
 
                 <div className="flex items-center gap-3 text-sm font-medium text-gray-300 cursor-pointer hover:text-white transition group relative">
