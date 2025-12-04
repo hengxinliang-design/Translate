@@ -8,6 +8,7 @@ const useSpeechRecognition = (language = 'en-US') => {
 
   const recognitionRef = useRef(null);
   const lastSpeakerRef = useRef(1);
+  const shouldListenRef = useRef(false);
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -57,15 +58,29 @@ const useSpeechRecognition = (language = 'en-US') => {
 
     recognition.onerror = (event) => {
       console.error('Speech recognition error', event.error);
+
+      // Ignore 'no-speech' errors as they are common when silent
+      if (event.error === 'no-speech') {
+        return;
+      }
+
       setError(`Error: ${event.error}`);
-      setIsListening(false);
+      // Don't stop listening state here, let onend handle the restart decision
     };
 
     recognition.onend = () => {
-      // If we didn't stop it manually, it might have stopped due to silence or error.
-      // We can decide to restart it here if we want "always on" behavior, 
-      // but for now we'll just update state.
-      setIsListening(false);
+      // If user still wants to listen, restart immediately
+      if (shouldListenRef.current) {
+        try {
+          recognition.start();
+        } catch (e) {
+          console.error('Failed to restart recognition:', e);
+          setIsListening(false);
+          shouldListenRef.current = false;
+        }
+      } else {
+        setIsListening(false);
+      }
     };
 
     recognitionRef.current = recognition;
@@ -83,6 +98,7 @@ const useSpeechRecognition = (language = 'en-US') => {
         // setTranscript([]); // Clear previous session - REMOVED for persistence
         // lastSpeakerRef.current = 1; // Reset speaker to 1 - REMOVED for persistence
         setInterimTranscript('');
+        shouldListenRef.current = true;
         recognitionRef.current.start();
       } catch (e) {
         console.error('Error starting recognition:', e);
@@ -92,6 +108,7 @@ const useSpeechRecognition = (language = 'en-US') => {
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
+      shouldListenRef.current = false;
       recognitionRef.current.stop();
     }
   }, [isListening]);
