@@ -6,10 +6,14 @@ describe('ControlBar', () => {
     const mockProps = {
         isListening: false,
         onToggleListening: vi.fn(),
+        onClear: vi.fn(),
         sourceLang: 'en-US',
         targetLang: 'zh-CN',
         setSourceLang: vi.fn(),
-        setTargetLang: vi.fn()
+        setTargetLang: vi.fn(),
+        speakers: [{ id: 1, name: 'Speaker 1' }],
+        activeSpeakerId: 1,
+        setActiveSpeakerId: vi.fn()
     };
 
     it('renders correctly', () => {
@@ -19,7 +23,7 @@ describe('ControlBar', () => {
 
     it('toggles listening on button click', () => {
         render(<ControlBar {...mockProps} />);
-        const micButton = screen.getByRole('button', { name: '' }); // Mic button has no text, just icon
+        const micButton = screen.getByTestId('mic-btn');
         fireEvent.click(micButton);
         expect(mockProps.onToggleListening).toHaveBeenCalled();
     });

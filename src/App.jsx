@@ -32,9 +32,37 @@ function App() {
     }
   });
 
+  const [speakers, setSpeakers] = useState(() => {
+    try {
+      const saved = localStorage.getItem('speakers');
+      return saved ? JSON.parse(saved) : [
+        { id: 1, name: 'Speaker 1', role: 'Host' },
+        { id: 2, name: 'Speaker 2', role: 'Guest' },
+        { id: 3, name: 'Speaker 3', role: 'Participant' },
+        { id: 4, name: 'Speaker 4', role: 'Participant' },
+        { id: 5, name: 'Speaker 5', role: 'Participant' }
+      ];
+    } catch (e) {
+      return [
+        { id: 1, name: 'Speaker 1', role: 'Host' },
+        { id: 2, name: 'Speaker 2', role: 'Guest' },
+        { id: 3, name: 'Speaker 3', role: 'Participant' },
+        { id: 4, name: 'Speaker 4', role: 'Participant' },
+        { id: 5, name: 'Speaker 5', role: 'Participant' }
+      ];
+    }
+  });
+
+  const [activeSpeakerId, setActiveSpeakerId] = useState(1);
+
   const handleSaveSettings = (newSettings) => {
     setSettings(newSettings);
     localStorage.setItem('translationSettings', JSON.stringify(newSettings));
+  };
+
+  const handleSaveSpeakers = (newSpeakers) => {
+    setSpeakers(newSpeakers);
+    localStorage.setItem('speakers', JSON.stringify(newSpeakers));
   };
 
   const {
@@ -45,11 +73,12 @@ function App() {
     stopListening,
     clearTranscript,
     error: recognitionError
-  } = useSpeechRecognition(sourceLang);
+  } = useSpeechRecognition(sourceLang, activeSpeaker?.name);
 
   const { speak, cancel: cancelSpeech } = useSpeechSynthesis();
 
-  const { translatedSegments, clearTranslations } = useTranslation(sourceLang, targetLang, transcript, speak, settings);
+  const activeSpeaker = speakers.find(s => s.id === activeSpeakerId);
+  const { translatedSegments, clearTranslations } = useTranslation(sourceLang, targetLang, transcript, speak, settings, activeSpeaker);
 
   const handleToggleListening = () => {
     if (isListening) {
@@ -117,6 +146,9 @@ function App() {
         targetLang={targetLang}
         setSourceLang={setSourceLang}
         setTargetLang={setTargetLang}
+        speakers={speakers}
+        activeSpeakerId={activeSpeakerId}
+        setActiveSpeakerId={setActiveSpeakerId}
       />
 
       <SettingsModal
@@ -124,6 +156,8 @@ function App() {
         onClose={() => setIsSettingsOpen(false)}
         settings={settings}
         onSave={handleSaveSettings}
+        speakers={speakers}
+        onSaveSpeakers={handleSaveSpeakers}
       />
     </>
   );

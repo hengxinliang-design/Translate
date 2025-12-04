@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-const useSpeechRecognition = (language = 'en-US') => {
+const useSpeechRecognition = (language = 'en-US', activeSpeakerName = 'User') => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState([]);
   const [interimTranscript, setInterimTranscript] = useState('');
@@ -35,19 +35,39 @@ const useSpeechRecognition = (language = 'en-US') => {
         if (event.results[i].isFinal) {
           const finalTranscript = event.results[i][0].transcript;
 
-          // Toggle speaker for new utterance
-          const currentSpeaker = `User ${lastSpeakerRef.current}`;
-          lastSpeakerRef.current = lastSpeakerRef.current === 1 ? 2 : 1;
+          const now = Date.now();
+          const lastSegment = transcript[transcript.length - 1];
+          const TIME_THRESHOLD = 2000; // 2 seconds to consider it a new paragraph
 
-          setTranscript((prev) => [
-            ...prev,
-            {
-              id: Date.now(),
-              text: finalTranscript,
-              timestamp: Date.now(),
-              speaker: currentSpeaker
+          setTranscript((prev) => {
+            const last = prev[prev.length - 1];
+
+            // If there is a last segment and it was recent, append to it
+            if (last && (now - last.timestamp < TIME_THRESHOLD)) {
+              return [
+                ...prev.slice(0, -1),
+                {
+                  ...last,
+                  text: `${last.text} ${finalTranscript}`,
+                  timestamp: now // Update timestamp to keep the window open
+                }
+              ];
             }
-          ]);
+
+            // Otherwise, create a new segment
+            // Use active speaker name
+            const currentSpeaker = activeSpeakerName;
+
+            return [
+              ...prev,
+              {
+                id: now,
+                text: finalTranscript,
+                timestamp: now,
+                speaker: currentSpeaker
+              }
+            ];
+          });
         } else {
           interim += event.results[i][0].transcript;
         }

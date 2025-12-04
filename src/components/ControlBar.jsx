@@ -8,9 +8,13 @@ const ControlBar = ({
     sourceLang,
     targetLang,
     setSourceLang,
-    setTargetLang
+    setTargetLang,
+    speakers,
+    activeSpeakerId,
+    setActiveSpeakerId
 }) => {
     const getLangName = (code) => LANGUAGES.find(l => l.code === code)?.name || code;
+    const activeSpeaker = speakers?.find(s => s.id === activeSpeakerId);
 
     const toggleFullscreen = () => {
         if (!document.fullscreenElement) {
@@ -25,6 +29,28 @@ const ControlBar = ({
     return (
         <div className="fixed bottom-[calc(2.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-50 w-full max-w-fit px-4">
             <div className="glass rounded-full px-4 md:px-6 py-3 flex items-center justify-between md:justify-center gap-3 md:gap-6 shadow-2xl transition-all hover:scale-105 duration-300">
+
+                <div className="relative group">
+                    <button className="flex items-center gap-2 text-sm font-medium text-cyan-400 hover:text-cyan-300 transition-colors bg-cyan-900/20 px-3 py-1.5 rounded-full border border-cyan-500/30">
+                        <i className="ri-user-voice-line"></i>
+                        <span className="max-w-[80px] truncate">{activeSpeaker?.name || 'Speaker'}</span>
+                    </button>
+
+                    <div className="absolute bottom-full left-0 mb-2 w-48 bg-gray-800 border border-gray-700 rounded-xl shadow-xl overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform origin-bottom-left">
+                        {speakers?.map(speaker => (
+                            <button
+                                key={speaker.id}
+                                onClick={() => setActiveSpeakerId(speaker.id)}
+                                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-700 transition-colors flex items-center justify-between ${activeSpeakerId === speaker.id ? 'text-cyan-400 bg-cyan-900/20' : 'text-gray-300'}`}
+                            >
+                                <span className="truncate">{speaker.name}</span>
+                                {activeSpeakerId === speaker.id && <i className="ri-check-line"></i>}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="w-px h-6 bg-gray-700"></div>
 
                 <div className="flex items-center gap-3 text-sm font-medium text-gray-300 cursor-pointer hover:text-white transition group relative">
                     <select

@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react';
 
-const SettingsModal = ({ isOpen, onClose, settings, onSave }) => {
+const SettingsModal = ({ isOpen, onClose, settings, onSave, speakers, onSaveSpeakers }) => {
     const [localSettings, setLocalSettings] = useState(settings);
+    const [localSpeakers, setLocalSpeakers] = useState(speakers || []);
 
     useEffect(() => {
         setLocalSettings(settings);
-    }, [settings, isOpen]);
+        if (speakers) setLocalSpeakers(speakers);
+    }, [settings, speakers, isOpen]);
 
     const handleChange = (key, value) => {
         setLocalSettings(prev => ({ ...prev, [key]: value }));
     };
 
+    const handleSpeakerChange = (id, key, value) => {
+        setLocalSpeakers(prev => prev.map(s => s.id === id ? { ...s, [key]: value } : s));
+    };
+
     const handleSave = () => {
         onSave(localSettings);
+        if (onSaveSpeakers) onSaveSpeakers(localSpeakers);
         onClose();
     };
 
@@ -76,6 +83,30 @@ const SettingsModal = ({ isOpen, onClose, settings, onSave }) => {
                             className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:ring-2 focus:ring-cyan-500 outline-none resize-none"
                         />
                         <p className="text-xs text-gray-500 mt-1">Instructions for the AI translator.</p>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-700">
+                        <h3 className="text-md font-bold text-white mb-3">Speaker Profiles</h3>
+                        <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                            {localSpeakers.map(speaker => (
+                                <div key={speaker.id} className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={speaker.name}
+                                        onChange={(e) => handleSpeakerChange(speaker.id, 'name', e.target.value)}
+                                        placeholder="Name"
+                                        className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:ring-2 focus:ring-cyan-500 outline-none"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={speaker.role}
+                                        onChange={(e) => handleSpeakerChange(speaker.id, 'role', e.target.value)}
+                                        placeholder="Role (e.g. Host)"
+                                        className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:ring-2 focus:ring-cyan-500 outline-none"
+                                    />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 

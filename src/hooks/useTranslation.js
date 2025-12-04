@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { translateText } from '../services/translationService';
 
-const useTranslation = (sourceLang, targetLang, transcript, speak, settings) => {
+const useTranslation = (sourceLang, targetLang, transcript, speak, settings, activeSpeaker) => {
   const [translatedSegments, setTranslatedSegments] = useState([]);
   const [processedSegmentIds, setProcessedSegmentIds] = useState(new Set());
 
@@ -21,7 +21,15 @@ const useTranslation = (sourceLang, targetLang, transcript, speak, settings) => 
         // Process translations in parallel
         await Promise.all(newSegments.map(async (segment) => {
           try {
-            const translatedText = await translateText(segment.text, sourceLang, targetLang, settings);
+            // Construct context from previous segments
+            const context = prev.slice(-3).map(s => `${s.speaker}: ${s.text}`).join('\n');
+
+            const translatedText = await translateText(segment.text, sourceLang, targetLang, {
+              ...settings,
+              speakerName: activeSpeaker?.name,
+              speakerRole: activeSpeaker?.role,
+              context
+            });
 
             setTranslatedSegments(prev => {
               // Avoid duplicates if already added by another race (though Set check above helps)
@@ -46,7 +54,7 @@ const useTranslation = (sourceLang, targetLang, transcript, speak, settings) => 
     };
 
     processTranslation();
-  }, [transcript, processedSegmentIds, sourceLang, targetLang, speak, settings]);
+  }, [transcript, processedSegmentIds, sourceLang, targetLang, speak, settings, activeSpeaker]);
 
   const clearTranslations = useCallback(() => {
     setTranslatedSegments([]);

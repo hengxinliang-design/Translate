@@ -9,13 +9,14 @@ import { translateWithOpenAI, translateWithGemini } from './llmService.js';
  */
 
 export const translateText = async (text, sourceLang, targetLang, settings = {}) => {
-    const { provider = 'gtx', apiKey, model, systemPrompt } = settings;
+    const { provider = 'gtx', apiKey, model, systemPrompt, speakerName, speakerRole, context } = settings;
+    const speakerInfo = { speakerName, speakerRole, context };
 
     try {
         if (provider === 'openai' && apiKey) {
-            return await translateWithOpenAI(text, sourceLang, targetLang, apiKey, model, systemPrompt);
+            return await translateWithOpenAI(text, sourceLang, targetLang, apiKey, model, systemPrompt, speakerInfo);
         } else if (provider === 'gemini' && apiKey) {
-            return await translateWithGemini(text, sourceLang, targetLang, apiKey, model, systemPrompt);
+            return await translateWithGemini(text, sourceLang, targetLang, apiKey, model, systemPrompt, speakerInfo);
         }
 
         // Default to Google GTX
