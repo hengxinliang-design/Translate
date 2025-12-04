@@ -4,6 +4,7 @@ import { LANGUAGES } from '../services/translationService';
 const ControlBar = ({
     isListening,
     onToggleListening,
+    onClear,
     sourceLang,
     targetLang,
     setSourceLang,
@@ -11,9 +12,19 @@ const ControlBar = ({
 }) => {
     const getLangName = (code) => LANGUAGES.find(l => l.code === code)?.name || code;
 
+    const toggleFullscreen = () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    };
+
     return (
-        <div className="fixed bottom-[calc(2.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-50">
-            <div className="glass rounded-full px-6 py-3 flex items-center gap-6 shadow-2xl transition-all hover:scale-105 duration-300">
+        <div className="fixed bottom-[calc(2.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-50 w-full max-w-fit px-4">
+            <div className="glass rounded-full px-4 md:px-6 py-3 flex items-center justify-between md:justify-center gap-3 md:gap-6 shadow-2xl transition-all hover:scale-105 duration-300">
 
                 <div className="flex items-center gap-3 text-sm font-medium text-gray-300 cursor-pointer hover:text-white transition group relative">
                     <select
@@ -69,7 +80,19 @@ const ControlBar = ({
 
                 <div className="w-px h-6 bg-gray-700"></div>
 
-                <button className="text-gray-400 hover:text-white transition-colors" title="全屏模式">
+                <button
+                    onClick={onClear}
+                    className="text-gray-400 hover:text-red-400 transition-colors"
+                    title="清空记录"
+                >
+                    <i className="ri-delete-bin-line text-lg"></i>
+                </button>
+
+                <button
+                    onClick={toggleFullscreen}
+                    className="text-gray-400 hover:text-white transition-colors"
+                    title="全屏模式"
+                >
                     <i className="ri-fullscreen-line text-lg"></i>
                 </button>
             </div>

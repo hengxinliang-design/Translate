@@ -4,13 +4,38 @@ import TranscriptList from './components/TranscriptList';
 import useSpeechRecognition from './hooks/useSpeechRecognition';
 import useSpeechSynthesis from './hooks/useSpeechSynthesis';
 import { translateText } from './services/translationService';
+import useTranslation from './hooks/useTranslation';
+
+import SettingsModal from './components/SettingsModal';
 
 function App() {
   const [sourceLang, setSourceLang] = useState('en-US');
   const [targetLang, setTargetLang] = useState('zh-CN');
 
-  const [translatedSegments, setTranslatedSegments] = useState([]);
-  const [processedSegmentIds, setProcessedSegmentIds] = useState(new Set());
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settings, setSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('translationSettings');
+      return saved ? JSON.parse(saved) : {
+        provider: 'gtx',
+        apiKey: '',
+        model: '',
+        systemPrompt: ''
+      };
+    } catch (e) {
+      return {
+        provider: 'gtx',
+        apiKey: '',
+        model: '',
+        systemPrompt: ''
+      };
+    }
+  });
+
+  const handleSaveSettings = (newSettings) => {
+    setSettings(newSettings);
+    localStorage.setItem('translationSettings', JSON.stringify(newSettings));
+  };
 
   const {
     isListening,
@@ -24,57 +49,16 @@ function App() {
 
   const { speak, cancel: cancelSpeech } = useSpeechSynthesis();
 
-  // Handle Translation and Speech
-  useEffect(() => {
-    const processTranslation = async () => {
-      // Find segments that haven't been processed yet
-      const newSegments = transcript.filter(seg => !processedSegmentIds.has(seg.id));
-
-      if (newSegments.length > 0) {
-        // Mark these as processed immediately to avoid double processing
-        setProcessedSegmentIds(prev => {
-          const next = new Set(prev);
-          newSegments.forEach(seg => next.add(seg.id));
-          return next;
-        });
-
-        // Process translations in parallel
-        await Promise.all(newSegments.map(async (segment) => {
-          try {
-            const translatedText = await translateText(segment.text, sourceLang, targetLang);
-
-            setTranslatedSegments(prev => {
-              // Avoid duplicates if already added by another race (though Set check above helps)
-              if (prev.some(t => t.id === segment.id)) return prev;
-
-              return [...prev, {
-                id: segment.id,
-                text: translatedText,
-                timestamp: segment.timestamp,
-                speaker: segment.speaker
-              }];
-            });
-
-            speak(translatedText, targetLang);
-          } catch (error) {
-            console.error('Translation failed:', error);
-          }
-        }));
-      }
-    };
-
-    processTranslation();
-  }, [transcript, processedSegmentIds, sourceLang, targetLang, speak]);
+  const { translatedSegments, clearTranslations } = useTranslation(sourceLang, targetLang, transcript, speak, settings);
 
   const handleToggleListening = () => {
     if (isListening) {
       stopListening();
       cancelSpeech();
     } else {
-      // Clear previous session data when starting new
-      clearTranscript();
-      setTranslatedSegments([]);
-      setProcessedSegmentIds(new Set());
+      // Clear previous session data when starting new - REMOVED for persistence
+      // clearTranscript();
+      // clearTranslations();
       startListening();
     }
   };
@@ -93,17 +77,20 @@ function App() {
   return (
     <>
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-cyan-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-blue-600 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob gpu"></div>
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-cyan-500 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob animation-delay-2000 gpu"></div>
+        <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-blue-600 rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob animation-delay-4000 gpu"></div>
       </div>
 
-      <header className="relative z-10 flex justify-between items-center px-8 py-6">
+      <header className="relative z-10 flex justify-between items-center px-4 py-4 md:px-8 md:py-6">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
           <span className="text-lg font-bold tracking-wider opacity-90">Johnny AI</span>
         </div>
-        <button className="text-gray-400 hover:text-white transition-colors">
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="text-gray-400 hover:text-white transition-colors"
+        >
           <i className="ri-settings-4-line text-xl"></i>
         </button>
       </header>
@@ -122,10 +109,21 @@ function App() {
       <ControlBar
         isListening={isListening}
         onToggleListening={handleToggleListening}
+        onClear={() => {
+          clearTranscript();
+          clearTranslations();
+        }}
         sourceLang={sourceLang}
         targetLang={targetLang}
         setSourceLang={setSourceLang}
         setTargetLang={setTargetLang}
+      />
+
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        settings={settings}
+        onSave={handleSaveSettings}
       />
     </>
   );

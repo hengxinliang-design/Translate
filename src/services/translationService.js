@@ -1,4 +1,5 @@
 import { refineTranslation, fallbackTranslate } from './glossary.js';
+import { translateWithOpenAI, translateWithGemini } from './llmService.js';
 
 /**
  * Mock Translation Service
@@ -7,8 +8,17 @@ import { refineTranslation, fallbackTranslate } from './glossary.js';
  * DeepL, or OpenAI. For this demo, we simulate translation.
  */
 
-export const translateText = async (text, sourceLang, targetLang) => {
+export const translateText = async (text, sourceLang, targetLang, settings = {}) => {
+    const { provider = 'gtx', apiKey, model, systemPrompt } = settings;
+
     try {
+        if (provider === 'openai' && apiKey) {
+            return await translateWithOpenAI(text, sourceLang, targetLang, apiKey, model, systemPrompt);
+        } else if (provider === 'gemini' && apiKey) {
+            return await translateWithGemini(text, sourceLang, targetLang, apiKey, model, systemPrompt);
+        }
+
+        // Default to Google GTX
         // Extract language codes (e.g., 'en-US' -> 'en')
         const source = sourceLang.split('-')[0];
         const target = targetLang.split('-')[0];

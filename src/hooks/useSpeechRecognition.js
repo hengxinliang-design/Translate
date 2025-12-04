@@ -80,8 +80,8 @@ const useSpeechRecognition = (language = 'en-US') => {
   const startListening = useCallback(() => {
     if (recognitionRef.current && !isListening) {
       try {
-        setTranscript([]); // Clear previous session
-        lastSpeakerRef.current = 1; // Reset speaker to 1
+        // setTranscript([]); // Clear previous session - REMOVED for persistence
+        // lastSpeakerRef.current = 1; // Reset speaker to 1 - REMOVED for persistence
         setInterimTranscript('');
         recognitionRef.current.start();
       } catch (e) {

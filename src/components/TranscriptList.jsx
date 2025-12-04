@@ -1,16 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 
 const TranscriptList = ({ transcript, translatedSegments }) => {
     const scrollRef = useRef(null);
 
     // Merge transcript and translation data
-    const mergedItems = transcript.map(item => {
+    const mergedItems = useMemo(() => transcript.map(item => {
         const translation = translatedSegments.find(t => t.id === item.id);
         return {
             ...item,
             translation: translation ? translation.text : ''
         };
-    });
+    }), [transcript, translatedSegments]);
 
     // Auto-scroll to bottom
     useEffect(() => {
